@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Analyzer</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --accent: #2563eb; --buy: #15803d; --wait: #b45309; --avoid: #b91c1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115; --card: #181b21; --text: #e6e8eb; --muted: #9aa1ac; --border: #2a2f38;
+      --accent: #60a5fa; --buy: #4ade80; --wait: #fbbf24; --avoid: #f87171;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--text); }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px; }
+  h1 { margin: 0 0 4px; font-size: 24px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  form { display: flex; gap: 8px; }
+  input { flex: 1; min-width: 0; padding: 12px 14px; font-size: 16px; text-transform: uppercase;
+          border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); }
+  button { padding: 12px 20px; font-size: 16px; border: 0; border-radius: 8px; background: var(--accent);
+           color: #fff; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 20px; }
+  .head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .verdict { font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 2px solid currentColor; }
+  .BUY { color: var(--buy); } .WAIT { color: var(--wait); } .AVOID { color: var(--avoid); }
+  .muted { color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .stat b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .next { border-left: 4px solid var(--wait); padding: 8px 12px; margin: 12px 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .cols { grid-template-columns: 1fr; } }
+  ul { margin: 6px 0; padding-left: 20px; }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  pre { white-space: pre-wrap; word-wrap: break-word; font: 13px/1.5 ui-monospace, monospace; color: var(--muted); }
+  .error { color: var(--avoid); }
+  .disclaimer { font-size: 12px; color: var(--muted); margin-top: 24px; }
+
+  /* Live activity panel */
+  .activity-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .activity-head h3 { margin: 0; font-size: 16px; }
+  .agents { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  @media (max-width: 600px) { .agents { grid-template-columns: 1fr; } }
+  .agent { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+  .agent.wide { grid-column: 1 / -1; }
+  .agent-title { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .agent-title .src { font-weight: 400; font-size: 12px; color: var(--muted); }
+  .pill { margin-left: auto; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px;
+          border: 1px solid currentColor; white-space: nowrap; }
+  .pill.waiting { color: var(--muted); } .pill.running { color: var(--accent); }
+  .pill.done { color: var(--buy); } .pill.failed { color: var(--avoid); }
+  .tools { list-style: none; margin: 8px 0 0; padding: 0; }
+  .tool { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: start;
+          padding: 5px 0; border-top: 1px solid var(--border); font-size: 13px; }
+  .tool .name { font-weight: 600; }
+  .tool .raw { color: var(--muted); font: 11px ui-monospace, monospace; }
+  .tool .args { color: var(--muted); overflow-wrap: anywhere; }
+  .tool .time { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .icon { width: 14px; height: 14px; margin-top: 2px; font-size: 13px; line-height: 14px; text-align: center; }
+  .icon.ok { color: var(--buy); } .icon.err { color: var(--avoid); }
+  .spinner { border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%;
+             animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+  .empty { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+
+  /* TradingView sign-in */
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .tv { display: flex; align-items: center; gap: 10px; font-size: 14px; padding-top: 4px; margin-left: auto; }
+  .tv .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .tv.on .dot { background: var(--buy); }
+  .btn-secondary { display: inline-block; padding: 8px 14px; font-size: 14px; border-radius: 8px; text-decoration: none;
+                   border: 1px solid var(--accent); color: var(--accent); background: transparent; cursor: pointer; }
+  .btn-link { border: 0; background: none; color: var(--muted); font-size: 13px; padding: 0; text-decoration: underline; cursor: pointer; }
+  .banner { padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; border: 1px solid currentColor; }
+  .banner.ok { color: var(--buy); } .banner.err { color: var(--avoid); }
+</style>
+</head>
+<body>
+<main>
+  <div id="banner"></div>
+  <div class="topbar">
+    <div>
+      <h1>Stock Analyzer</h1>
+      <p class="sub">TradingView technicals and web research, combined by AI into a buy, wait or avoid call.</p>
+    </div>
+    <div id="tv" class="tv" aria-live="polite"><span class="muted">Checking TradingView…</span></div>
+  </div>
+
+  <form id="form">
+    <input id="ticker" placeholder="Ticker, e.g. AAPL or NASDAQ:MSFT" autocomplete="off" required maxlength="20">
+    <button id="go" type="submit">Analyze</button>
+  </form>
+
+  <div id="activity"></div>
+  <div id="out"></div>
+
+  <p class="disclaimer">AI-generated analysis for educational purposes only. Not financial advice.
+  Verify the data yourself before you trade.</p>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = (n) => n == null ? "—" : "$" + Number(n).toFixed(2);
+
+// ---- TradingView sign-in ------------------------------------------------------------------
+
+const LOGIN_URL = "/auth/tradingview/login";
+
+async function refreshTradingView() {
+  let connected = false;
+  try { connected = (await (await fetch("/api/tradingview/status")).json()).connected; } catch {}
+  $("tv").className = "tv" + (connected ? " on" : "");
+  $("tv").innerHTML = connected
+    ? `<span class="dot"></span>TradingView connected <button class="btn-link" id="tv-logout" type="button">Sign out</button>`
+    : `<span class="dot"></span><span class="muted">TradingView not connected</span>
+       <a class="btn-secondary" href="${LOGIN_URL}">Login with TradingView</a>`;
+  if (connected) $("tv-logout").onclick = async () => {
+    $("tv-logout").disabled = true;
+    await fetch("/api/tradingview/logout", {method: "POST"});
+    showBanner("ok", "Signed out of TradingView.");
+    refreshTradingView();
+  };
+}
+
+function showBanner(kind, text) {
+  $("banner").innerHTML = text ? `<div class="banner ${kind}" role="status">${esc(text)}</div>` : "";
+}
+
+// Result of the OAuth redirect (/?tv=connected or /?tv_error=...), then clean the URL
+const params = new URLSearchParams(location.search);
+if (params.get("tv") === "connected") showBanner("ok", "Signed in to TradingView.");
+else if (params.get("tv_error")) showBanner("err", params.get("tv_error"));
+if (params.has("tv") || params.has("tv_error")) history.replaceState(null, "", "/");
+refreshTradingView();
+
+// ---- Live activity -------------------------------------------------------------------------
+
+// Agent columns come from the server's `plan` event (app/agents.py RESEARCH_AGENTS)
+const DECISION_KEY = "orchestrator";
+let AGENTS = {};
+const TOOL_LABELS = {
+  "mcp-tv-search-symbols": "Resolve symbol",
+  "mcp-tv-get-ohlcv": "Price history",
+  "mcp-tv-get-technicals-rating": "Technical indicators",
+  "mcp-tv-get-symbol-data": "Symbol data",
+  "mcp-tv-get-forecasts": "Analyst forecasts",
+  "mcp-tv-get-financials": "Financials",
+  "mcp-tv-get-earnings-calendar": "Earnings calendar",
+  "mcp-tv-get-news": "TradingView headlines",
+  "mcp-tv-get-news-story": "News story",
+  "web_search": "Web search",
+  "web_fetch": "Read web page",
+  "code_execution": "Filter search results",
+};
+const STATUS_TEXT = {waiting: "Waiting", running: "Running", done: "Done", failed: "Failed"};
+
+let state, clock, source;
+
+function startActivity(ticker) {
+  state = {ticker, started: Date.now(), agents: {}, tools: {}};
+  AGENTS = {};
+  clearInterval(clock);
+  clock = setInterval(renderActivity, 500);  // keeps the elapsed timers ticking
+  renderActivity();
+}
+
+function onEvent(ev) {
+  if (ev.type === "plan") {
+    for (const a of ev.agents) {
+      AGENTS[a.key] = {title: a.title, src: a.source, wide: a.key === DECISION_KEY};
+      state.agents[a.key] = {status: "waiting", tools: [], message: ""};
+    }
+    return renderActivity();
+  }
+  const agent = state.agents[ev.agent];
+  if (!agent) return;
+  if (ev.type === "agent_start") {
+    agent.status = "running"; agent.started = Date.now();
+  } else if (ev.type === "agent_end") {
+    agent.status = ev.ok ? "done" : "failed"; agent.message = ev.message || ""; agent.ended = Date.now();
+    // Some server-side steps never report a separate result; settle anything still spinning
+    for (const id of agent.tools) {
+      const t = state.tools[id];
+      if (t.status === "running") { t.status = ev.ok ? "ok" : "err"; t.ended = Date.now(); }
+    }
+  } else if (ev.type === "tool_start") {
+    state.tools[ev.id] = {tool: ev.tool, input: ev.input, status: "running", started: Date.now()};
+    agent.tools.push(ev.id);
+  } else if (ev.type === "tool_end" && state.tools[ev.id]) {
+    Object.assign(state.tools[ev.id], {status: ev.ok ? "ok" : "err", ended: Date.now()});
+  }
+  renderActivity();
+}
+
+function finishActivity() {
+  clearInterval(clock);
+  for (const a of Object.values(state.agents)) if (a.status === "running") a.status = "failed";
+  renderActivity();
+}
+
+const secs = (from, to) => from ? ((to || Date.now()) - from) / 1000 : 0;
+
+function renderActivity() {
+  const totalDone = Object.values(state.agents).every((a) => a.status === "done" || a.status === "failed");
+  const calls = Object.values(state.tools);
+  const failed = calls.filter((t) => t.status === "err").length;
+  const agentsHtml = Object.entries(AGENTS).map(([key, meta]) => {
+    const a = state.agents[key];
+    const rows = a.tools.map((id) => {
+      const t = state.tools[id];
+      const icon = t.status === "running" ? `<div class="icon spinner" aria-label="Running"></div>`
+        : t.status === "ok" ? `<div class="icon ok" aria-label="Succeeded">✓</div>`
+        : `<div class="icon err" aria-label="Failed">✗</div>`;
+      return `<li class="tool">${icon}
+        <div><span class="name">${esc(TOOL_LABELS[t.tool] || t.tool)}</span>
+          <span class="raw">${esc(t.tool)}</span>
+          ${t.input ? `<div class="args">${esc(t.input)}</div>` : ""}</div>
+        <span class="time">${secs(t.started, t.ended).toFixed(1)}s</span></li>`;
+    }).join("");
+    const empty = a.status === "waiting" ? "Not started yet"
+      : key === DECISION_KEY ? (a.status === "running" ? "Weighing the reports…" : "")
+      : a.tools.length ? "" : (a.status === "running" ? "Thinking…" : "No tool calls");
+    return `<div class="agent ${meta.wide ? "wide" : ""}">
+      <div class="agent-title">${esc(meta.title)} <span class="src">${esc(meta.src)}</span>
+        <span class="pill ${a.status}">${STATUS_TEXT[a.status]}${a.started ? ` · ${secs(a.started, a.ended).toFixed(0)}s` : ""}</span></div>
+      ${a.message ? `<p class="empty error">${esc(a.message)}</p>` : ""}
+      ${rows ? `<ul class="tools">${rows}</ul>` : empty ? `<p class="empty">${empty}</p>` : ""}
+    </div>`;
+  }).join("");
+  $("activity").innerHTML = `<div class="card">
+    <div class="activity-head"><h3>Activity · ${esc(state.ticker)}</h3>
+      <span class="muted">${calls.length} tool call${calls.length === 1 ? "" : "s"}${failed ? `, ${failed} failed` : ""}
+        · ${secs(state.started).toFixed(0)}s${totalDone ? "" : " elapsed"}</span></div>
+    <div class="agents">${agentsHtml}</div></div>`;
+}
+
+// ---- Run an analysis over server-sent events ----------------------------------------------
+
+$("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const ticker = $("ticker").value.trim().toUpperCase();
+  if (source) source.close();
+  $("go").disabled = true;
+  $("out").innerHTML = "";
+  startActivity(ticker);
+
+  const done = () => { source.close(); finishActivity(); $("go").disabled = false; };
+  source = new EventSource(`/api/analyze/stream?ticker=${encodeURIComponent(ticker)}`);
+  source.onmessage = (msg) => {
+    const ev = JSON.parse(msg.data);
+    if (ev.type === "result") { render(ev.data); done(); }
+    else if (ev.type === "error") {
+      $("out").innerHTML = `<div class="card error">${esc(ev.message)}
+        ${ev.login_required ? `<p><a class="btn-secondary" href="${LOGIN_URL}">Login with TradingView</a></p>` : ""}</div>`;
+      if (ev.login_required) refreshTradingView();
+      done();
+    }
+    else onEvent(ev);
+  };
+  // Never let EventSource auto-reconnect: that would start a second (paid) analysis
+  source.onerror = () => {
+    if (source.readyState === EventSource.CLOSED || !$("go").disabled) return;
+    $("out").innerHTML = `<div class="card error">Lost connection to the server.</div>`;
+    done();
+  };
+});
+
+function render({recommendation: r, reports}) {
+  const entry = r.entry_price_low != null && r.entry_price_high != null
+    ? `${money(r.entry_price_low)} – ${money(r.entry_price_high)}` : money(r.entry_price_low ?? r.entry_price_high);
+  const list = (xs) => xs.length ? `<ul>${xs.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="muted">None noted</p>`;
+  $("out").innerHTML = `
+    <div class="card">
+      <div class="head">
+        <h2 style="margin:0">${esc(r.ticker)}</h2>
+        <span class="muted">${esc(r.company_name)}</span>
+        <span class="verdict ${esc(r.verdict)}">${esc(r.verdict)}</span>
+        <span class="muted">${esc(r.confidence)} confidence · ${esc(r.time_horizon)}</span>
+      </div>
+      <p>${esc(r.summary)}</p>
+      ${r.verdict !== "BUY" ? `<div class="next"><b>Next best time to buy:</b> ${esc(r.next_best_time_to_buy)}</div>` : ""}
+      <div class="grid">
+        <div class="stat"><span>Current</span><b>${money(r.current_price)}</b></div>
+        <div class="stat"><span>Entry zone</span><b>${entry}</b></div>
+        <div class="stat"><span>Stop loss</span><b class="AVOID">${money(r.stop_loss)}</b></div>
+        <div class="stat"><span>Target</span><b class="BUY">${money(r.target_price)}</b></div>
+        <div class="stat"><span>Reward : risk</span><b>${r.risk_reward_ratio == null ? "—" : Number(r.risk_reward_ratio).toFixed(1) + " : 1"}</b></div>
+      </div>
+      <div class="cols">
+        <div><b class="BUY">Bullish</b>${list(r.bullish_factors)}</div>
+        <div><b class="AVOID">Bearish</b>${list(r.bearish_factors)}</div>
+      </div>
+      ${reports.map((rep) => `<details><summary>${esc(rep.title)} report</summary><pre>${esc(rep.text)}</pre></details>`).join("")}
+    </div>`;
+}
+</script>
+</body>
+</html>

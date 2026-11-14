@@ -1,0 +1,246 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8" pages="2">
+  <diagram id="architecture" name="Architecture">
+    <mxGraphModel dx="1232" dy="696" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1780" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;Stock Analyzer&lt;/b&gt; — system architecture" style="text;html=1;fontSize=22;align=left;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="20" y="10" width="700" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" value="&lt;b&gt;Browser &amp;mdash; Web UI&lt;/b&gt;&lt;br&gt;app/static/index.html&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;Ticker input &amp;middot; live Activity panel &amp;middot; result card&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="110" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="&lt;b&gt;FastAPI server&lt;/b&gt;&lt;br&gt;app/main.py&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;GET /api/analyze/stream (SSE)&lt;br&gt;POST /api/analyze (JSON)&lt;br&gt;ticker validation &amp;middot; error mapping &amp;middot; cancel on disconnect&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="300" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="prompts" value="&lt;b&gt;Prompt files&lt;/b&gt;&lt;br&gt;prompts/*.md&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;loaded + validated at startup (app/prompts.py)&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="60" y="460" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="auth" value="&lt;b&gt;TradingView auth&lt;/b&gt;&lt;br&gt;app/tradingview_auth.py&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;one-time OAuth 2.1 login (CLI, opens browser)&lt;br&gt;automatic token refresh&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="580" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tokens" value=".tokens/tradingview.json&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;access token (15 min) + refresh token&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=10;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="70" y="710" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="orch" value="Agent orchestration &amp;mdash; app/agents.py &amp;middot; analyze()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontStyle=1;arcSize=3;" parent="1" vertex="1">
+          <mxGeometry x="400" y="110" width="600" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="parallelLbl" value="&lt;i&gt;asyncio.gather &amp;mdash; all 4 research agents run in parallel&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#4d7c0f;" parent="1" vertex="1">
+          <mxGeometry x="410" y="138" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="aTech" value="&lt;b&gt;Technicals&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;TradingView: search-symbols, technicals-rating, ohlcv, symbol-data&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="410" y="170" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="aFund" value="&lt;b&gt;Fundamentals analysts&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;TradingView: financials, forecasts, earnings-calendar, symbol-data&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="410" y="250" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="aNews" value="&lt;b&gt;News&amp;nbsp; catalysts&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;Web search + TradingView headlines (get-news, get-news-story)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="410" y="330" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="aMacro" value="&lt;b&gt;Sector ; macro&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;Web search: sector, peers, rates, upcoming macro events&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="410" y="410" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="researchCfg" value="&lt;b&gt;Research agents&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;model: Haiku 5.5 (CLAUDE_MODEL)&lt;br&gt;effort: medium&lt;br&gt;streamed &amp;rarr; tool events to UI&lt;br&gt;prompt caching&lt;br&gt;pause_turn resume&lt;br&gt;failure &amp;rarr; placeholder report, run continues&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=8;" parent="1" vertex="1">
+          <mxGeometry x="740" y="170" width="210" height="305" as="geometry" />
+        </mxCell>
+        <mxCell id="decision" value="&lt;b&gt;Decision agent&lt;/b&gt; (orchestrate)&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;Sonnet 5.5 (CLAUDE_DECISION_MODEL) &amp;middot; effort high &amp;middot; structured output &amp;rarr; Recommendation&lt;br&gt;BUY / WAIT / AVOID &amp;middot; entry zone &amp;middot; stop loss &amp;middot; target &amp;middot; next best time to buy&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="410" y="545" width="540" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="zAnthropic" value="Anthropic cloud" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontStyle=1;fontSize=14;arcSize=3;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="60" width="320" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="claude" value="&lt;b&gt;Claude API&lt;/b&gt; (Messages)&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;Haiku 5.5 &amp;mdash; 4 research agents&lt;br&gt;Sonnet 5.5 &amp;mdash; decision&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="1110" y="110" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="mcpConn" value="&lt;b&gt;MCP connector&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;beta mcp-client-2025-11-20&lt;br&gt;per-agent read-only tool allowlist&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="1110" y="270" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="webSearch" value="&lt;b&gt;Web search tool&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;web_search_20250305 on Haiku&lt;br&gt;(20260209 on Opus/Sonnet)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="1110" y="420" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="zTV" value="TradingView" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontStyle=1;fontSize=14;arcSize=3;" parent="1" vertex="1">
+          <mxGeometry x="1460" y="60" width="290" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="tvMcp" value="&lt;b&gt;TradingView MCP server&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;mcp.tradingview.com/mcp&lt;br&gt;35 tools; app enables 9 read-only&lt;br&gt;watchlist/alert writes disabled&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1490" y="110" width="230" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tvOauth" value="&lt;b&gt;TradingView OAuth&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;www.tradingview.com/mcp/oauth&lt;br&gt;register &amp;middot; authorize &amp;middot; token&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1490" y="330" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="web" value="&lt;b&gt;Public web&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;news sites, filings, macro data&lt;/font&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="1490" y="530" width="230" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="GET /api/analyze/stream?ticker=" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;exitX=0.3;exitY=1;entryX=0.3;entryY=0;" parent="1" source="browser" target="api" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="SSE events: plan, agent_start/end,&lt;br&gt;tool_start/end, result / error" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;dashed=1;fontSize=10;exitX=0.7;exitY=0;entryX=0.7;entryY=1;labelBackgroundColor=#f5f5f5;" parent="1" source="api" target="browser" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="analyze(ticker, emit)" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;exitX=1;exitY=0.5;entryX=0;entryY=0.35;" parent="1" source="api" target="orch" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="system prompts + templates" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;dashed=1;fontSize=10;exitX=1;exitY=0.5;entryX=0;entryY=0.73;" parent="1" source="prompts" target="orch" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="get_access_token()" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;exitX=0;exitY=0.95;entryX=1;entryY=0.3;" parent="1" source="orch" target="auth" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="read / save" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;startArrow=block;fontSize=10;" parent="1" source="auth" target="tokens" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="refresh_token grant (~every 15 min)&lt;br&gt;one-time login: register + authorize" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;exitX=0.5;exitY=1;entryX=0.5;entryY=1;labelBackgroundColor=#ffffff;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="190" y="810" />
+              <mxPoint x="1605" y="810" />
+            </Array>
+            <mxPoint x="190" y="670" as="sourcePoint" />
+            <mxPoint x="1605" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="4 parallel streamed requests" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;exitX=1;exitY=0.15;entryX=0;entryY=0.5;" parent="1" source="researchCfg" target="claude" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="1 request (parse &amp;rarr; Recommendation)" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;exitX=1;exitY=0.5;entryX=0.5;entryY=1;" parent="1" source="decision" target="claude" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1050" y="592" />
+              <mxPoint x="1050" y="230" />
+              <mxPoint x="1240" y="230" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" parent="1" source="claude" target="mcpConn" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="Bearer token&lt;br&gt;(your TradingView session)" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="mcpConn" target="tvMcp" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;exitX=0.15;exitY=1;entryX=0.15;entryY=0;" parent="1" source="claude" target="webSearch" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="webSearch" target="web" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" value="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;solid arrow: request / call&lt;br&gt;dashed arrow: data / events&lt;br&gt;&lt;font color=&quot;#82b366&quot;&gt;&amp;#9632;&lt;/font&gt; research agent &amp;nbsp;&lt;font color=&quot;#d79b00&quot;&gt;&amp;#9632;&lt;/font&gt; decision&lt;br&gt;&lt;font color=&quot;#9673a6&quot;&gt;&amp;#9632;&lt;/font&gt; Anthropic &amp;nbsp;&lt;font color=&quot;#6c8ebf&quot;&gt;&amp;#9632;&lt;/font&gt; app code" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;fontSize=11;fillColor=#ffffff;strokeColor=#999999;" parent="1" vertex="1">
+          <mxGeometry x="1460" y="700" width="290" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="flow" name="Analysis flow">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ftitle" value="&lt;b&gt;One analysis, step by step&lt;/b&gt;" style="text;html=1;fontSize=22;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="600" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="&lt;b&gt;1. User enters ticker&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;UI opens SSE stream&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="20" y="300" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="Valid ticker?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="220" y="290" width="130" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="s2err" value="error event&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;&amp;quot;Enter a valid ticker&amp;quot;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="215" y="460" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;2. TradingView token&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;use saved token; refresh if it expires within 2 min&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="390" y="300" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s3err" value="401 &amp;quot;Sign in again&amp;quot;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;no API cost incurred&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="400" y="460" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="&lt;b&gt;3. plan event&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;UI draws one column per agent&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="610" y="300" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="fanout" value="" style="shape=line;direction=south;html=1;strokeWidth=4;" vertex="1" parent="1">
+          <mxGeometry x="800" y="90" width="10" height="490" as="geometry" />
+        </mxCell>
+        <mxCell id="fanLbl" value="&lt;i&gt;4. fan out (parallel)&lt;/i&gt;" style="text;html=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="745" y="590" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" value="&lt;b&gt;Technicals&lt;/b&gt; (Haiku)&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;TradingView tools via MCP connector&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="850" y="100" width="250" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="&lt;b&gt;Fundamentals &amp;amp;amp; analysts&lt;/b&gt; (Haiku)&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;TradingView tools via MCP connector&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="850" y="220" width="250" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" value="&lt;b&gt;News &amp;amp;amp; catalysts&lt;/b&gt; (Haiku)&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;web search + TradingView headlines&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="850" y="340" width="250" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" value="&lt;b&gt;Sector &amp;amp;amp; macro&lt;/b&gt; (Haiku)&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;web search&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="850" y="460" width="250" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eachNote" value="&lt;b&gt;Each agent:&lt;/b&gt; streamed request &amp;rarr; tool_start / tool_end events per call &amp;rarr; resend on pause_turn &amp;rarr; agent_end. On failure: placeholder report, run continues." style="shape=note;whiteSpace=wrap;html=1;size=12;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="850" y="620" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="joinBar" value="" style="shape=line;direction=south;html=1;strokeWidth=4;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="90" width="10" height="490" as="geometry" />
+        </mxCell>
+        <mxCell id="joinLbl" value="&lt;i&gt;5. join (wait for all)&lt;/i&gt;" style="text;html=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="590" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="&lt;b&gt;6. Decision&lt;/b&gt; (Sonnet 5.5)&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;reads all 4 reports &amp;rarr; structured Recommendation&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="295" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" value="&lt;b&gt;7. result event&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px&quot;&gt;UI shows verdict, entry, stop, target, next best time, and each report&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="295" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelNote" value="If the browser disconnects at any point, the server cancels the running agents (stops spending tokens)." style="shape=note;whiteSpace=wrap;html=1;size=12;fillColor=#fad9d5;strokeColor=#ae4132;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="620" width="460" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="no" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;" edge="1" parent="1" source="s2" target="s2err">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" value="yes" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" value="login required" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;" edge="1" parent="1" source="s3" target="s3err">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f5" value="ok" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;" edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;entryX=0.5;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="s4" target="fanout">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f7" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;exitX=0.5;exitY=0.06;exitDx=0;exitDy=0;" edge="1" parent="1" source="fanout" target="p1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="135" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f8" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;exitX=0.5;exitY=0.31;exitDx=0;exitDy=0;" edge="1" parent="1" source="fanout" target="p2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f9" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;exitX=0.5;exitY=0.55;exitDx=0;exitDy=0;" edge="1" parent="1" source="fanout" target="p3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f10" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;exitX=0.5;exitY=0.8;exitDx=0;exitDy=0;" edge="1" parent="1" source="fanout" target="p4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f11" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;entryX=0.5;entryY=0.06;entryDx=0;entryDy=0;" edge="1" parent="1" source="p1" target="joinBar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f12" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;entryX=0.5;entryY=0.31;entryDx=0;entryDy=0;" edge="1" parent="1" source="p2" target="joinBar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f13" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;entryX=0.5;entryY=0.55;entryDx=0;entryDy=0;" edge="1" parent="1" source="p3" target="joinBar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f14" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;entryX=0.5;entryY=0.8;entryDx=0;entryDy=0;" edge="1" parent="1" source="p4" target="joinBar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f15" value="4 reports" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontSize=10;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="joinBar" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f16" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

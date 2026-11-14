@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "PowerShell(git status)",
+      "PowerShell(git diff:*)",
+      "PowerShell(git log:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./.tokens/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-Command",
+              "$i = [Console]::In.ReadToEnd() | ConvertFrom-Json; @{ systemMessage = 'Running tool: ' + $i.tool_name } | ConvertTo-Json -Compress"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

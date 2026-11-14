@@ -1,0 +1,19 @@
+# Secrets
+.env
+.env.*
+!.env.example
+secrets/
+.tokens/
+logs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Claude Code personal settings
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Editor backups
+*.bkp
